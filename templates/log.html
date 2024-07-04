@@ -1,0 +1,15 @@
+{% extends 'model-page.html' %}
+
+{% block content %}
+    <h2>Log de eventos</h2>
+    <div>
+        <ul>
+            {% for evento in eventos %}
+            <li style="{% if evento.get_evento_atrasado %} color: red; {% endif %}">
+                {{evento.titulo}} - {{evento.descricao}} - {{evento.data_evento}}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}

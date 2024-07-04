@@ -42,12 +42,14 @@ def local(request, titulo_evento):
 
 @login_required(login_url='/login/')
 def lista_eventos(request):
-    user = request.user
-    data_atual = datetime.now() - timedelta(hours=1)
-    evento = Evento.objects.filter(usuario=user,
-                                   data_evento__gt=data_atual)
-    dados = {'eventos': evento}
-
+    try:
+        user = request.user
+        data_atual = datetime.now() - timedelta(hours=1)
+        evento = Evento.objects.filter(usuario=user,
+                                    data_evento__gt=data_atual)
+        dados = {'eventos': evento}
+    except Exception:
+        raise Http404
     return render(request, 'agenda.html', dados)
 
 @login_required(login_url='/login/')
@@ -55,7 +57,10 @@ def evento(request):
     id_evento =  request.GET.get('id')
     dados = {}
     if id_evento:
-        dados['evento'] = Evento.objects.get(id=id_evento)
+        try:
+            dados['evento'] = Evento.objects.get(id=id_evento)
+        except Exception:
+            raise Http404
     return render(request, 'evento.html', dados)
 
 @login_required(login_url='/login/')
@@ -110,6 +115,19 @@ def delete_evento(request, id_evento):
 
 
 def json_lista_evento(request, id_usuario):
-    usuario = User.objects.get(id=id_usuario)
-    evento = Evento.objects.filter(usuario=usuario).values('id', 'titulo', 'descricao')
+    try:
+        usuario = User.objects.get(id=id_usuario)
+        evento = Evento.objects.filter(usuario=usuario).values('id', 'titulo', 'descricao')
+    except Exception:
+        raise Http404
     return JsonResponse(list(evento), safe=False)
+
+@login_required(login_url='/login/')
+def log_eventos(request):
+    try:
+        usuario = request.user
+        evento = Evento.objects.filter(usuario=usuario)
+        dados = {'eventos':evento}
+    except Exception:
+        Http404
+    return render(request, 'log.html', dados)
