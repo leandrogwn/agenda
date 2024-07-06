@@ -37,7 +37,7 @@ def local(request, titulo_evento):
         evento = Evento.objects.get(titulo=titulo_evento)
         local = evento.local_evento
         return HttpResponse('O local do evento {} sera no {}. '.format(titulo_evento, local))
-    except:
+    except Exception as e:
         return HttpResponse('Não foi possível realizar a consulta')
 
 @login_required(login_url='/login/')
@@ -48,7 +48,7 @@ def lista_eventos(request):
         evento = Evento.objects.filter(usuario=user,
                                     data_evento__gt=data_atual)
         dados = {'eventos': evento}
-    except Exception:
+    except Exception as e:
         raise Http404
     return render(request, 'agenda.html', dados)
 
@@ -59,7 +59,7 @@ def evento(request):
     if id_evento:
         try:
             dados['evento'] = Evento.objects.get(id=id_evento)
-        except Exception:
+        except Exception as e:
             raise Http404
     return render(request, 'evento.html', dados)
 
@@ -76,7 +76,7 @@ def submit_evento(request):
         if id_evento:
             try:
                 evento = Evento.objects.get(id=id_evento)
-            except Exception:
+            except Exception as e:
                 raise Http404()
             if evento.usuario == usuario:
                 evento.titulo=titulo
@@ -105,7 +105,7 @@ def delete_evento(request, id_evento):
     usuario = request.user
     try:
         evento = Evento.objects.get(id=id_evento)
-    except Exception:
+    except Exception as e:
        raise Http404
     if usuario == evento.usuario:
         evento.delete()
@@ -118,7 +118,7 @@ def json_lista_evento(request, id_usuario):
     try:
         usuario = User.objects.get(id=id_usuario)
         evento = Evento.objects.filter(usuario=usuario).values('id', 'titulo', 'descricao')
-    except Exception:
+    except Exception as e:
         raise Http404
     return JsonResponse(list(evento), safe=False)
 
@@ -128,6 +128,6 @@ def log_eventos(request):
         usuario = request.user
         evento = Evento.objects.filter(usuario=usuario)
         dados = {'eventos':evento}
-    except Exception:
+    except Exception as e:
         Http404
     return render(request, 'log.html', dados)
